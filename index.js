@@ -23,11 +23,6 @@ const FILIAIS = [
     { nome: 'TERESINA', pasta: 'THE' }
 ];
 
-// --- CONFIGURAÇÃO DE CAMINHOS ---
-const BASE_REPORT_PATH = process.env.BASE_REPORT_PATH || (process.platform === 'win32' 
-    ? 'C:\\Users\\luhan.vinicius\\grupojb.log.br\\tc - DATABASE PAINEL\\BASE FISCAL'
-    : '/home/luhan/base_fiscal'); // Ajuste conforme necessário para o Ubuntu
-
 async function run(userIndex = 0, cdIndex = 0) {
     if (userIndex >= USERS.length) {
         console.log('❌ Todos os usuários atingiram o limite de hoje.');
@@ -164,9 +159,14 @@ async function run(userIndex = 0, cdIndex = 0) {
             await page.click('button[title="Download de Arquivo CSV - separado por \',\'"]', { force: true });
             const download = await downloadPromise;
 
-            // Salvar na pasta correta
-            const basePath = path.join(BASE_REPORT_PATH, filial.pasta);
-            if (!fs.existsSync(basePath)) fs.mkdirSync(basePath, { recursive: true });
+            // Salvar na pasta correta (Compatível com Windows e Linux)
+            const baseOutputPath = process.env.BASE_OUTPUT_PATH || './downloads';
+            const basePath = path.join(baseOutputPath, filial.pasta);
+            
+            if (!fs.existsSync(basePath)) {
+                console.log(`Criando pasta: ${basePath}`);
+                fs.mkdirSync(basePath, { recursive: true });
+            }
 
             const yearYY = String(now.getFullYear()).slice(-2);
             const monthMM = String(now.getMonth() + 1).padStart(2, '0');

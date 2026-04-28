@@ -1,0 +1,37 @@
+{
+  "cookies": [
+    {
+      "name": "JSESSIONID",
+      "value": "6C46BD124095844342FD671D20E88FBD",
+      "domain": "jb.mytracking.com.br",
+      "path": "/mytracking",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "cf_clearance",
+      "value": "W0cwONRK7SskeBrvqTDwt0_Re3Cx_freeOX8m7wUZvY-1777304656-1.2.1.1-PqNOVOjSp2zZI4vl27fK13A3dFTR622jk4EU0bxKCGQHU6RW4sFeXIHI6ZXySNuZDgSbjrqRnjk6KeUjUR2g3CmoRcYCP.Qou2p3bMslvmSXkKBRpgeORPQT.fv1jwMshpifj82tAu7TMe_BhAs3mTBGIFy72NYN1wjUBV4G_AUmRisOv06h1QmJWqMGvrpOy2iqAnakqvvAR6TBqUYra2L.M4t_yEZ0LUx6Jx2GH3hFQ1XjzeqJ4aCth.KbMahhvEA7bjm.t.Zl_8CIzExND3_laBPE9rmmPlmyrmRpo1KhO_IaSqWvnd5LiK7JAt6ia8UfpLGbwvNz7Kx7.0IwsA",
+      "domain": ".mytracking.com.br",
+      "path": "/",
+      "expires": 1808840551.341807,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None",
+      "partitionKey": "https://mytracking.com.br",
+      "_crHasCrossSiteAncestor": false
+    },
+    {
+      "name": "site24x7rumID",
+      "value": "603834539258971.1777304551289.1777304563224.0",
+      "domain": "jb.mytracking.com.br",
+      "path": "/",
+      "expires": 1811864563.225246,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Strict"
+    }
+  ],
+  "origins": []
+}

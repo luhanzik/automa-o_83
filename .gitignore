@@ -1,7 +1,6 @@
 node_modules/
 .env
-*.log
-*.png
-state.json
 state_*.json
+erro_*.png
 downloads/
+.tempmediaStorage/
