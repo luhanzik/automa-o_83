@@ -1,0 +1,89 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head id="j_idt2"><link type="text/css" rel="stylesheet" href="/mytracking/javax.faces.resource/theme.css.xhtml?ln=primefaces-avalon-blue-v4"><link type="text/css" rel="stylesheet" href="/mytracking/javax.faces.resource/fa/font-awesome.css.xhtml?ln=primefaces&amp;v=8.0"><link type="text/css" rel="stylesheet" href="/mytracking/javax.faces.resource/components.css.xhtml?ln=primefaces&amp;v=8.0"><script type="text/javascript" src="/mytracking/javax.faces.resource/jquery/jquery.js.xhtml?ln=primefaces&amp;v=8.0"></script><script type="text/javascript" src="/mytracking/javax.faces.resource/jquery/jquery-plugins.js.xhtml?ln=primefaces&amp;v=8.0"></script><script type="text/javascript" src="/mytracking/javax.faces.resource/core.js.xhtml?ln=primefaces&amp;v=8.0"></script><script type="text/javascript" src="/mytracking/javax.faces.resource/components.js.xhtml?ln=primefaces&amp;v=8.0"></script><script type="text/javascript">if(window.PrimeFaces){PrimeFaces.settings.locale='pt_BR';}</script>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+		<title>MyTracking</title>
+	
+		<link rel="shortcut icon" href="/mytracking/pages/resources/imagens/my.png" type="image/x-icon">
+	
+		<link rel="stylesheet" href="/mytracking/pages/public/style.css">
+	
+		<link href="/mytracking/pages/resources/bootstrap/css/bootstrap.min.css" rel="stylesheet"><script async="" src="//static.site24x7rum.com/beacon/site24x7rum-min.js?appKey=490e653389b8d5fe71cd76bc14735e5e"></script></head><body>
+ 
+		<div class="login-layout">
+			<div class="login-banner">
+				 <iframe src="https://loginpage.mytracking.com.br/blog/" frameborder="0" style="width:100%; height:100%;"></iframe>
+			</div>
+
+			<div class="login-panel">
+				<div class="wrapper">
+<form id="j_idt6" name="j_idt6" method="post" action="/mytracking/pages/public/login.xhtml" class="form-signin" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="j_idt6" value="j_idt6" style="">
+<input id="resolucao" type="hidden" name="resolucao" value="1280,720" style=""><span id="messagens"></span>
+	
+				<h2 class="form-signin-heading" style="text-align: center;">
+					<img src="/mytracking/pages/resources/imagens/empresa/mytracking_login2.png">
+				</h2><input id="username" name="username" type="text" class="ui-inputfield ui-inputtext ui-widget ui-state-default ui-corner-all form-control" aria-required="true" placeholder="Usuário" title="Usuário" role="textbox" aria-disabled="false" aria-readonly="false" style="">
+				<br><input id="password" name="password" type="password" class="ui-inputfield ui-password ui-widget ui-state-default ui-corner-all form-control" aria-required="true" autocomplete="off" placeholder="Senha" role="textbox" aria-disabled="false" aria-readonly="false" style=""><button id="j_idt9" name="j_idt9" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only btn btn-lg btn-primary btn-block" onclick="PrimeFaces.bcn(this,event,[function(event){var w=PrimeFaces.widgets['widget_j_idt9'];if(w){w.disable();};atualizarResolucao()},function(event){PrimeFaces.ab({s:&quot;j_idt9&quot;,f:&quot;j_idt6&quot;,u:&quot;j_idt6&quot;,onco:function(xhr,status,args,data){var w=PrimeFaces.widgets['widget_j_idt9'];if(w){w.enable();};;}});return false;}]);" type="submit" role="button" aria-disabled="false"><span class="ui-button-text ui-c">Login</span></button>
+	 
+				<p style="margin-bottom: 1px;" class="mt-2"><a id="j_idt11" href="#" class="ui-commandlink ui-widget" onclick="PrimeFaces.ab({s:&quot;j_idt11&quot;,f:&quot;j_idt6&quot;,p:&quot;j_idt11 username&quot;,u:&quot;j_idt6&quot;,ps:true});return false;">Esqueci Minha Senha</a>
+				</p>
+				<p>
+					<a href="https://suporte.pointsistemas.com.br" target="_blank">Precisa de Ajuda?
+					</a>
+				</p><div id="j_idt16" class="ui-outputpanel ui-widget">
+					<p></p><div id="j_idt18" class="ui-outputpanel ui-widget"><hr id="j_idt19" class="ui-separator ui-state-default ui-corner-all"><button id="bt_filtro" name="bt_filtro" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left w-100 ui-priority-primary btn-azure-outline" onclick="sso.iniciar()" type="button" role="button" aria-disabled="false"><span class="ui-button-icon-left ui-icon ui-c fa fa-windows"></span><span class="ui-button-text ui-c">Continuar como a Azure</span></button></div>
+					<p></p></div><div id="dialogEsqueceuSenha" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container" role="dialog" aria-describedby="dialogEsqueceuSenha_content" aria-hidden="true" aria-labelledby="dialogEsqueceuSenha_title" style="width: 500px; height: auto;"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="dialogEsqueceuSenha_title" class="ui-dialog-title"></span></div><div class="ui-dialog-content ui-widget-content" id="dialogEsqueceuSenha_content" style="height: 120px;">
+ 
+		<div class="ui-g">
+			<div class="ui-g-12"><label id="j_idt22" class="ui-outputlabel ui-widget"></label>
+			</div>
+		</div>
+
+		<div class="ui-g">
+			<div class="ui-g-2"></div>
+		</div></div><div class="ui-dialog-footer ui-widget-content"><span><table style="margin: 0 auto;">
+<tbody>
+<tr>
+<td><button id="esqueceuSenhaEnviar" name="esqueceuSenhaEnviar" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="PrimeFaces.bcn(this,event,[function(event){var w=PrimeFaces.widgets['widget_esqueceuSenhaEnviar'];if(w){w.disable();};},function(event){PrimeFaces.ab({s:&quot;esqueceuSenhaEnviar&quot;,f:&quot;j_idt6&quot;,p:&quot;esqueceuSenhaEnviar&quot;,u:&quot;j_idt6&quot;,onco:function(xhr,status,args,data){var w=PrimeFaces.widgets['widget_esqueceuSenhaEnviar'];if(w){w.enable();};PF('dialogoEsqueciSenha').hide();;}});return false;}]);" label="Confirmar" title="Confirmar" type="submit" role="button" aria-disabled="false"><span class="ui-button-text ui-c">Confirmar</span></button></td>
+<td><button id="j_idt25" name="j_idt25" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="PF('dialogoEsqueciSenha').hide();" type="button" role="button" aria-disabled="false"><span class="ui-button-text ui-c">Cancelar</span></button></td>
+</tr>
+</tbody>
+</table>
+</span></div></div><div id="dialogUsuarioLogado" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container" role="dialog" aria-describedby="dialogUsuarioLogado_content" aria-hidden="true" aria-labelledby="dialogUsuarioLogado_title" style="width: 400px; height: auto;"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="dialogUsuarioLogado_title" class="ui-dialog-title"></span></div><div class="ui-dialog-content ui-widget-content" id="dialogUsuarioLogado_content" style="height: auto;">
+ 
+		<div class="ui-g">
+			<div class="ui-g-12" style="text-align: center;"><label id="j_idt27" class="ui-outputlabel ui-widget">Você será desconectado do MyTracking em outros navegadores, deseja continuar?</label>
+			</div>
+		</div></div><div class="ui-dialog-footer ui-widget-content"><span><table style="margin: 0 auto;">
+<tbody>
+<tr>
+<td><button id="usuarioLogadoOK" name="usuarioLogadoOK" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only ui-priority-primary" onclick="PrimeFaces.bcn(this,event,[function(event){var w=PrimeFaces.widgets['widget_usuarioLogadoOK'];if(w){w.disable();};},function(event){PrimeFaces.ab({s:&quot;usuarioLogadoOK&quot;,f:&quot;j_idt6&quot;,p:&quot;usuarioLogadoOK resolucao&quot;,u:&quot;usuarioLogadoOK messagens&quot;,ps:true,onco:function(xhr,status,args,data){var w=PrimeFaces.widgets['widget_usuarioLogadoOK'];if(w){w.enable();};PF('dialogoUsuarioLogado').hide();;}});return false;}]);" label="Sim" style="width: 100px;" type="submit" role="button" aria-disabled="false"><span class="ui-button-text ui-c">Sim</span></button></td>
+<td><button id="j_idt30" name="j_idt30" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" onclick="PF('dialogoUsuarioLogado').hide();" style="width: 100px;" type="button" role="button" aria-disabled="false"><span class="ui-button-text ui-c">Não</span></button></td>
+</tr>
+</tbody>
+</table>
+</span></div></div><div id="dialogUsuarioAmbiente" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container" role="dialog" aria-describedby="dialogUsuarioAmbiente_content" aria-hidden="true" aria-labelledby="dialogUsuarioAmbiente_title" style="width: 500px; height: auto;"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="dialogUsuarioAmbiente_title" class="ui-dialog-title">Atenção</span><a href="#" class="ui-dialog-titlebar-icon ui-dialog-titlebar-close ui-corner-all" aria-label="Close" role="button"><span class="ui-icon ui-icon-closethick"></span></a></div><div class="ui-dialog-content ui-widget-content" id="dialogUsuarioAmbiente_content" style="height: auto;">
+ 
+ 		<div class="ui-g">
+	 		<div class="ui-g-12"><label id="j_idt32" class="ui-outputlabel ui-widget"></label>
+	 		</div>
+ 		</div>
+		<div class="ui-g">
+			<div class="ui-g-12">
+			</div>
+		</div></div></div><div id="j_idt40" style="width:32px;height:32px;position:fixed;right:7px;bottom:7px"><div id="j_idt40_start" style="display:none">
+		               <i class="fa fa-circle-o-notch fa-spin ajax-loader" aria-hidden="true"></i></div><div id="j_idt40_complete" style="display:none"></div></div><script id="j_idt43" type="text/javascript">inicializarSSO = function() {PrimeFaces.ab({s:"j_idt43",f:"j_idt6",p:"j_idt43",u:"j_idt43",pa:arguments[0]});}</script><script id="j_idt44" type="text/javascript">inicializarPaginaSSO = function() {PrimeFaces.ab({s:"j_idt44",f:"j_idt6",p:"j_idt44",u:"j_idt44",pa:arguments[0]});}</script><input type="hidden" name="javax.faces.ViewState" id="j_id1:javax.faces.ViewState:0" value="1469420967906354760:-2116147293733704618" autocomplete="off" style="">
+</form>
+				</div>
+			</div>
+
+		</div><div id="j_idt46" class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-shadow ui-hidden-container" role="dialog" aria-describedby="j_idt46_content" aria-hidden="true" aria-modal="true" aria-labelledby="j_idt46_title" style="width: 250px; height: auto;"><div class="ui-dialog-titlebar ui-widget-header ui-helper-clearfix ui-corner-top"><span id="j_idt46_title" class="ui-dialog-title">Carregando...</span></div><div class="ui-dialog-content ui-widget-content" id="j_idt46_content" style="height: 80px;">
+			<div class="gridStatusDialog" align="center">
+				<i class="fa fa-circle-o-notch fa-spin ajax-loader" aria-hidden="true"></i>
+			</div></div></div>
+		<script type="text/javascript" src="/mytracking/pages/resources/js/screen.js"></script>
+		<script type="text/javascript" src="/mytracking/pages/resources/js/agente.js"></script>
+		<script type="text/javascript" src="/mytracking/pages/resources/js/login.sso.js"></script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f2eb3169f2af229',t:'MTc3NzMwMjA1NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><iframe height="1" width="1" style="position: absolute; top: 0px; left: 0px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; visibility: hidden;"></iframe><script defer="" src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;0488eabed9ea4c0981df18d50c7c5f67&quot;,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}" crossorigin="anonymous"></script>
+
+<div id="textarea_simulator" style="position: absolute; top: 0px; left: 0px; visibility: hidden;"></div><div id="messagens_container" class="ui-growl ui-widget" aria-live="polite" style="z-index: 1001;"></div><div class="ui-dialog-docking-zone"></div></body></html>
