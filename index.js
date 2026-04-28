@@ -6,11 +6,11 @@ require('dotenv').config();
 
 chromium.use(stealth);
 
-// --- CONFIGURAÇÃO DE USUÁRIOS (Ordem: Gabriel -> Esther -> Luhan) ---
+// --- CONFIGURAÇÃO DE USUÁRIOS (Ordem: Luhan -> Gabriel -> Esther) ---
 const USERS = [
+    { email: 'luhan.vinicius@transcleber.com.br', pass: 'Luhan123@@' },
     { email: 'gabriel.silva@transcleber.com.br', pass: 'Gabr2312!*' },
-    { email: 'maria.esther@transcleber.com.br', pass: 'TheraJob@7' },
-    { email: 'luhan.vinicius@transcleber.com.br', pass: 'Luhan123@@' }
+    { email: 'maria.esther@transcleber.com.br', pass: 'TheraJob@7' }
 ];
 
 // --- CONFIGURAÇÃO DE FILIAIS ---
@@ -68,8 +68,10 @@ async function run(userIndex = 0, cdIndex = 0) {
             try {
                 const errorMsg = page.locator('.ui-messages-error-detail, .ui-growl-item');
                 if (await errorMsg.isVisible({ timeout: 5000 })) {
-                    console.log(`⚠️ Erro no login: ${await errorMsg.innerText()}`);
+                    const msgText = await errorMsg.innerText();
+                    console.log(`⚠️ Erro no login: ${msgText}`);
                     await browser.close();
+                    // Se for erro de senha ou limite, pula para o próximo usuário
                     return run(userIndex + 1, cdIndex);
                 }
             } catch (e) {}
@@ -84,7 +86,7 @@ async function run(userIndex = 0, cdIndex = 0) {
             await page.goto(process.env.REPORT_URL, { waitUntil: 'networkidle' });
             await context.storageState({ path: stateFile });
         } else {
-            await page.goto(process.env.REPORT_URL, { waitUntil: 'networkidle' });
+            // Mesmo se já logado, salvar estado atualizado
             await context.storageState({ path: stateFile });
         }
 
@@ -123,71 +125,89 @@ async function run(userIndex = 0, cdIndex = 0) {
             // Selecionar Filial
             console.log(`Selecionando CD ${filial.nome}...`);
             await page.locator('label[id$=":2:mq__label"]').click({ force: true });
-            await page.waitForTimeout(1000);
+            await page.waitForTimeout(1500);
 
-            // Desmarcar tudo primeiro
-            const allCheckbox = page.locator('.ui-selectcheckboxmenu-panel:visible .ui-selectcheckboxmenu-header .ui-chkbox-box');
+            // Desmarcar tudo primeiro (Garante que só a desejada será marcada)
+            const panel = page.locator('.ui-selectcheckboxmenu-panel:visible');
+            const allCheckbox = panel.locator('.ui-selectcheckboxmenu-header .ui-chkbox-box');
+            
+            // Lógica para desmarcar tudo: clica no "marcar todos" e depois desmarca
             await allCheckbox.click();
             await page.waitForTimeout(500);
             await allCheckbox.click();
-            await page.waitForTimeout(500);
+            await page.waitForTimeout(800);
 
-            // Agora marca a filial correta
-            await page.locator(`.ui-selectcheckboxmenu-items:visible li:has-text("${filial.nome}") .ui-chkbox-box`).click({ force: true });
+            // Agora marca a filial correta (case-insensitive)
+            await panel.locator('li').filter({ hasText: new RegExp(`^${filial.nome}$`, 'i') }).locator('.ui-chkbox-box').click({ force: true });
             await page.waitForTimeout(800);
             await page.keyboard.press('Escape');
+            await page.waitForTimeout(500);
 
             console.log('Consultando...');
             await page.click('.ui-dialog:visible button:has-text("consultar")');
 
-            // Verificação de Limite
-            const limitMsg = page.locator('.ui-growl-item:has-text("limite de execução"), .ui-messages:has-text("limite de execução")');
-            if (await limitMsg.isVisible({ timeout: 5000 })) {
-                console.log(`⚠️ LIMITE ATINGIDO em ${filial.nome}. Trocando usuário...`);
-                await browser.close();
-                return run(userIndex + 1, i); // Tenta a MESMA filial com o próximo usuário
-            }
+            // Verificação de Limite de Execução
+            try {
+                const limitMsg = page.locator('.ui-growl-item:has-text("limite de execução"), .ui-messages:has-text("limite de execução")');
+                if (await limitMsg.isVisible({ timeout: 5000 })) {
+                    console.log(`⚠️ LIMITE ATINGIDO em ${filial.nome}. Trocando usuário...`);
+                    await browser.close();
+                    return run(userIndex + 1, i); // Tenta a MESMA filial com o próximo usuário
+                }
+            } catch (e) {}
 
             console.log('Aguardando carregamento...');
             const loading = page.locator('.ui-dialog:visible:has-text("Carregando...")');
             await loading.waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
-            await loading.waitFor({ state: 'hidden', timeout: 90000 });
+            await loading.waitFor({ state: 'hidden', timeout: 120000 });
             await page.waitForTimeout(2000);
 
             console.log('Iniciando download CSV...');
-            const downloadPromise = page.waitForEvent('download', { timeout: 120000 });
+            const downloadPromise = page.waitForEvent('download', { timeout: 180000 });
             await page.click('button[title="Download de Arquivo CSV - separado por \',\'"]', { force: true });
             const download = await downloadPromise;
 
-            // Salvar na pasta correta (Compatível com Windows e Linux)
-            const baseOutputPath = process.env.BASE_OUTPUT_PATH || './downloads';
-            const basePath = path.join(baseOutputPath, filial.pasta);
+            // Salvar na pasta correta
+            let baseOutputPath = process.env.BASE_OUTPUT_PATH || './downloads';
             
-            if (!fs.existsSync(basePath)) {
-                console.log(`Criando pasta: ${basePath}`);
-                fs.mkdirSync(basePath, { recursive: true });
+            // CORREÇÃO CRÍTICA: Se rodar no Linux (WSL/Airflow) e o caminho for do Windows (C:)
+            if (process.platform === 'linux' && /^[a-zA-Z]:/.test(baseOutputPath)) {
+                console.log('Ambiente Linux detectado com caminho Windows. Convertendo para /mnt/c...');
+                baseOutputPath = baseOutputPath.replace(/^[a-zA-Z]:/, '/mnt/c').replace(/\\/g, '/');
             }
+
+            // Forçar o caminho a ser absoluto
+            const absoluteBase = path.isAbsolute(baseOutputPath) ? baseOutputPath : path.resolve(baseOutputPath);
+            const basePath = path.join(absoluteBase, filial.pasta);
 
             const yearYY = String(now.getFullYear()).slice(-2);
             const monthMM = String(now.getMonth() + 1).padStart(2, '0');
             const finalPath = path.join(basePath, `${yearYY}.${monthMM}.csv`);
 
-            if (fs.existsSync(finalPath)) fs.unlinkSync(finalPath);
-            await download.saveAs(finalPath);
-            console.log(`✅ ${filial.nome} salvo em: ${finalPath}`);
+            console.log(`Caminho Final: ${finalPath}`);
             
-            // Fechar o diálogo de filtros se ele ainda estiver aberto por algum motivo
+            if (fs.existsSync(finalPath)) {
+                console.log(`Substituindo arquivo existente: ${finalPath}`);
+                fs.unlinkSync(finalPath);
+            }
+            
+            await download.saveAs(finalPath);
+            console.log(`✅ ${filial.nome} concluído: ${finalPath}`);
+            
+            // Fechar o diálogo de filtros se ele ainda estiver aberto
             try {
                 const closeBtn = page.locator('.ui-dialog:visible .ui-dialog-titlebar-close');
                 if (await closeBtn.isVisible()) await closeBtn.click();
             } catch (e) {}
         }
 
-        console.log('\n🏁 TODAS AS FILIAIS CONCLUÍDAS!');
+        console.log('\n🏁 TODAS AS FILIAIS CONCLUÍDAS COM SUCESSO!');
 
     } catch (error) {
         console.error('❌ Erro crítico:', error);
-        await page.screenshot({ path: `erro_${FILIAIS[cdIndex].pasta}.png` });
+        const errorPath = `erro_${FILIAIS[cdIndex].pasta}_u${userIndex}.png`;
+        await page.screenshot({ path: errorPath });
+        console.log(`Screenshot do erro salva em: ${errorPath}`);
     } finally {
         await browser.close();
         console.log('Navegador fechado.');
