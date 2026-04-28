@@ -41,9 +41,10 @@ async function run(userIndex = 0, cdIndex = 0) {
     console.log(`FILIAL ATUAL: ${FILIAIS[cdIndex].nome} (${cdIndex + 1}/${FILIAIS.length})`);
     console.log(`================================================\n`);
 
+    const isHeadless = process.env.HEADLESS === 'true';
     const browser = await chromium.launch({
-        headless: false,
-        args: ['--start-maximized']
+        headless: isHeadless,
+        args: isHeadless ? ['--no-sandbox', '--disable-setuid-sandbox'] : ['--start-maximized']
     });
 
     const contextOptions = fs.existsSync(stateFile) ? { storageState: stateFile } : {};
@@ -160,7 +161,8 @@ async function run(userIndex = 0, cdIndex = 0) {
             const download = await downloadPromise;
 
             // Salvar na pasta correta
-            const basePath = `C:\\Users\\luhan.vinicius\\grupojb.log.br\\tc - DATABASE PAINEL\\BASE FISCAL\\${filial.pasta}`;
+            const baseDownloadDir = process.env.DOWNLOAD_PATH || './downloads';
+            const basePath = path.join(baseDownloadDir, filial.pasta);
             if (!fs.existsSync(basePath)) fs.mkdirSync(basePath, { recursive: true });
 
             const yearYY = String(now.getFullYear()).slice(-2);
