@@ -44,10 +44,10 @@ function loadProgress() {
     return [];
 }
 
-function saveProgress(filialNome) {
+function saveProgress(filialId) {
     const completed = loadProgress();
-    if (!completed.includes(filialNome)) {
-        completed.push(filialNome);
+    if (!completed.includes(filialId)) {
+        completed.push(filialId);
         fs.writeFileSync(PROGRESS_FILE, JSON.stringify({
             date: getTodayStr(),
             completed: completed
@@ -61,13 +61,12 @@ async function run(userIndex = 0) {
         return;
     }
 
-    const completedFiliais = loadProgress();
-    const remainingFiliais = FILIAIS.filter(f => !completedFiliais.includes(f.nome));
+    const completedIds = loadProgress();
+    const remainingFiliais = FILIAIS.filter(f => !completedIds.includes(f.pasta));
 
     if (remainingFiliais.length === 0) {
         console.log('\n✅ Todas as filiais já foram processadas hoje!');
-        // Se quiser resetar o arquivo de progresso após o sucesso total:
-        // fs.unlinkSync(PROGRESS_FILE); 
+        console.log('💡 Para rodar novamente agora, delete o arquivo "progress.json".');
         return;
     }
 
@@ -76,11 +75,12 @@ async function run(userIndex = 0) {
     
     console.log(`\n================================================`);
     console.log(`USUÁRIO ATUAL: ${currentUser.email}`);
-    console.log(`PROGRESSO: ${completedFiliais.length}/${FILIAIS.length} filiais concluídas`);
+    console.log(`PROGRESSO: ${completedIds.length}/${FILIAIS.length} filiais concluídas`);
     console.log(`================================================\n`);
 
+    const isLinux = process.platform === 'linux';
     const browser = await chromium.launch({
-        headless: process.platform === 'linux', // Headless no Airflow (Linux)
+        headless: isLinux, // Falso no Windows, Verdadeiro no Linux (Airflow)
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--start-maximized']
     });
 
@@ -149,7 +149,7 @@ async function run(userIndex = 0) {
 
         // --- LOOP PELAS FILIAIS RESTANTES ---
         for (const filial of FILIAIS) {
-            if (completedFiliais.includes(filial.nome)) continue;
+            if (completedIds.includes(filial.pasta)) continue;
 
             let retryCount = 0;
             const maxRetries = 3;
@@ -232,7 +232,7 @@ async function run(userIndex = 0) {
                     await download.saveAs(finalPath);
                     console.log(`✅ ${filial.nome} concluído com sucesso!`);
                     
-                    saveProgress(filial.nome);
+                    saveProgress(filial.pasta);
                     success = true;
 
                     // Fechar diálogo se necessário
