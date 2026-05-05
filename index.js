@@ -8,8 +8,8 @@ chromium.use(stealth);
 
 // --- CONFIGURAÇÃO DE USUÁRIOS (Ordem: Gabriel -> Luhan -> Esther) ---
 const USERS = [
-    { email: 'gabriel.silva@transcleber.com.br', pass: 'Gabr2312!*' },
     { email: 'luhan.vinicius@transcleber.com.br', pass: 'Luhan123@@' },
+    { email: 'gabriel.silva@transcleber.com.br', pass: 'Gabr2312!*' },
     { email: 'maria.esther@transcleber.com.br', pass: 'TheraJob@7' }
 ];
 
@@ -35,7 +35,7 @@ async function run(userIndex = 0, cdIndex = 0) {
 
     const currentUser = USERS[userIndex];
     const stateFile = `state_${currentUser.email.split('@')[0]}.json`;
-    
+
     console.log(`\n================================================`);
     console.log(`USUÁRIO: ${currentUser.email}`);
     console.log(`FILIAL ATUAL: ${FILIAIS[cdIndex].nome} (${cdIndex + 1}/${FILIAIS.length})`);
@@ -63,7 +63,7 @@ async function run(userIndex = 0, cdIndex = 0) {
             console.log('Sessão expirada. Fazendo login...');
             await page.fill('#username', currentUser.email);
             await page.fill('#password', currentUser.pass);
-            await page.click('#j_idt9');
+            await page.click('button:has-text("Login")');
 
             try {
                 const errorMsg = page.locator('.ui-messages-error-detail, .ui-growl-item');
@@ -74,13 +74,13 @@ async function run(userIndex = 0, cdIndex = 0) {
                     // Se for erro de senha ou limite, pula para o próximo usuário
                     return run(userIndex + 1, cdIndex);
                 }
-            } catch (e) {}
+            } catch (e) { }
 
             try {
                 const popupOk = page.locator('#usuarioLogadoOK');
                 await popupOk.waitFor({ state: 'visible', timeout: 5000 });
                 await popupOk.click();
-            } catch (e) {}
+            } catch (e) { }
 
             await page.waitForURL(url => url.toString().includes('private'), { timeout: 30000 });
             await page.goto(process.env.REPORT_URL, { waitUntil: 'networkidle' });
@@ -106,6 +106,32 @@ async function run(userIndex = 0, cdIndex = 0) {
         // Loop pelas filiais restantes
         for (let i = cdIndex; i < FILIAIS.length; i++) {
             const filial = FILIAIS[i];
+
+            // --- VERIFICAÇÃO DE ARQUIVO EXISTENTE ---
+            const now = new Date();
+            let baseOutputPath = process.env.BASE_OUTPUT_PATH || './downloads';
+            if (process.platform === 'linux' && /^[a-zA-Z]:/.test(baseOutputPath)) {
+                baseOutputPath = baseOutputPath.replace(/^[a-zA-Z]:/, '/mnt/c').replace(/\\/g, '/');
+            }
+            const absoluteBase = path.isAbsolute(baseOutputPath) ? baseOutputPath : path.resolve(baseOutputPath);
+            const basePath = path.join(absoluteBase, filial.pasta);
+            const yearYY = String(now.getFullYear()).slice(-2);
+            const monthMM = String(now.getMonth() + 1).padStart(2, '0');
+            const finalPath = path.join(basePath, `${yearYY}.${monthMM}.csv`);
+
+            // Verificação inteligente de arquivo existente
+            if (fs.existsSync(finalPath)) {
+                const stats = fs.statSync(finalPath);
+                const diffMinutes = Math.round((new Date() - stats.mtime) / (1000 * 60));
+
+                if (diffMinutes < 20) { // Pula se tiver menos de 20 minutos
+                    console.log(`⏩ ${filial.nome} já baixado recentemente (${diffMinutes}min atrás). Pulando...`);
+                    continue;
+                } else {
+                    console.log(`🔄 ${filial.nome} está antigo (${diffMinutes}min atrás). Atualizando...`);
+                }
+            }
+
             console.log(`\n>>> Processando: ${filial.nome}...`);
 
             console.log('Abrindo filtros...');
@@ -113,7 +139,6 @@ async function run(userIndex = 0, cdIndex = 0) {
             await page.waitForTimeout(2000);
 
             // Datas
-            const now = new Date();
             const todayDay = String(now.getDate());
             await page.locator('input[id$=":0:data__input"]').click();
             await page.click('.ui-datepicker-calendar:visible a:text-is("1")');
@@ -130,7 +155,7 @@ async function run(userIndex = 0, cdIndex = 0) {
             // Desmarcar tudo primeiro (Garante que só a desejada será marcada)
             const panel = page.locator('.ui-selectcheckboxmenu-panel:visible');
             const allCheckbox = panel.locator('.ui-selectcheckboxmenu-header .ui-chkbox-box');
-            
+
             // Lógica para desmarcar tudo: clica no "marcar todos" e depois desmarca
             await allCheckbox.click();
             await page.waitForTimeout(500);
@@ -163,7 +188,7 @@ async function run(userIndex = 0, cdIndex = 0) {
 
             console.log('Aguardando carregamento...');
             const loading = page.locator('.ui-dialog:visible:has-text("Carregando...")');
-            await loading.waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
+            await loading.waitFor({ state: 'visible', timeout: 3000 }).catch(() => { });
             await loading.waitFor({ state: 'hidden', timeout: 120000 });
             await page.waitForTimeout(2000);
 
@@ -172,38 +197,22 @@ async function run(userIndex = 0, cdIndex = 0) {
             await page.click('button[title="Download de Arquivo CSV - separado por \',\'"]', { force: true });
             const download = await downloadPromise;
 
-            // Salvar na pasta correta
-            let baseOutputPath = process.env.BASE_OUTPUT_PATH || './downloads';
-            
-            // CORREÇÃO CRÍTICA: Se rodar no Linux (WSL/Airflow) e o caminho for do Windows (C:)
-            if (process.platform === 'linux' && /^[a-zA-Z]:/.test(baseOutputPath)) {
-                console.log('Ambiente Linux detectado com caminho Windows. Convertendo para /mnt/c...');
-                baseOutputPath = baseOutputPath.replace(/^[a-zA-Z]:/, '/mnt/c').replace(/\\/g, '/');
-            }
-
-            // Forçar o caminho a ser absoluto
-            const absoluteBase = path.isAbsolute(baseOutputPath) ? baseOutputPath : path.resolve(baseOutputPath);
-            const basePath = path.join(absoluteBase, filial.pasta);
-
-            const yearYY = String(now.getFullYear()).slice(-2);
-            const monthMM = String(now.getMonth() + 1).padStart(2, '0');
-            const finalPath = path.join(basePath, `${yearYY}.${monthMM}.csv`);
-
+            // Salvar no caminho já calculado no início do loop
             console.log(`Caminho Final: ${finalPath}`);
-            
-            if (fs.existsSync(finalPath)) {
-                console.log(`Substituindo arquivo existente: ${finalPath}`);
-                fs.unlinkSync(finalPath);
+
+            // Criar diretório se não existir
+            if (!fs.existsSync(basePath)) {
+                fs.mkdirSync(basePath, { recursive: true });
             }
-            
+
             await download.saveAs(finalPath);
             console.log(`✅ ${filial.nome} concluído: ${finalPath}`);
-            
+
             // Fechar o diálogo de filtros se ele ainda estiver aberto
             try {
                 const closeBtn = page.locator('.ui-dialog:visible .ui-dialog-titlebar-close');
                 if (await closeBtn.isVisible()) await closeBtn.click();
-            } catch (e) {}
+            } catch (e) { }
         }
 
         console.log('\n🏁 TODAS AS FILIAIS CONCLUÍDAS COM SUCESSO!');
@@ -211,10 +220,18 @@ async function run(userIndex = 0, cdIndex = 0) {
     } catch (error) {
         console.error('❌ Erro crítico:', error);
         const errorPath = `erro_${FILIAIS[cdIndex].pasta}_u${userIndex}.png`;
-        await page.screenshot({ path: errorPath });
+        await page.screenshot({ path: errorPath }).catch(() => { });
         console.log(`Screenshot do erro salva em: ${errorPath}`);
+
+        await browser.close().catch(() => { });
+
+        // Se der erro, tenta trocar de usuário e continuar da MESMA filial
+        if (userIndex + 1 < USERS.length) {
+            console.log(`🔄 Tentando recuperar erro com próximo usuário...`);
+            return run(userIndex + 1, cdIndex);
+        }
     } finally {
-        await browser.close();
+        await browser.close().catch(() => { });
         console.log('Navegador fechado.');
     }
 }
